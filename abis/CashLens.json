@@ -1,0 +1,45 @@
+[
+  {
+    "name": "getSafeCashData",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [{ "name": "vault", "type": "address" }],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "components": [
+          { "name": "mode", "type": "uint8" },
+          { "name": "totalCollateralUsd", "type": "uint256" },
+          { "name": "totalBorrowedUsd", "type": "uint256" },
+          { "name": "maxBorrowCapacityUsd", "type": "uint256" },
+          { "name": "availableCredit", "type": "uint256" },
+          { "name": "maxSpendDebit", "type": "uint256" },
+          { "name": "collateralTokens", "type": "address[]" },
+          { "name": "collateralAmounts", "type": "uint256[]" },
+          { "name": "collateralAmountsUsd", "type": "uint256[]" },
+          { "name": "collateralLtvs", "type": "uint256[]" }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "getMaxSpendCredit",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [{ "name": "vault", "type": "address" }],
+    "outputs": [{ "name": "", "type": "uint256" }]
+  },
+  {
+    "name": "canSpend",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      { "name": "vault", "type": "address" },
+      { "name": "tokens", "type": "address[]" },
+      { "name": "amountsInUsd", "type": "uint256[]" },
+      { "name": "txId", "type": "bytes32" }
+    ],
+    "outputs": [{ "name": "", "type": "bool" }]
+  }
+]
