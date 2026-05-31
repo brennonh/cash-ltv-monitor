@@ -8,20 +8,20 @@ A NestJS service that monitors the LTV (Loan-to-Value) health of all ether.fi Ca
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  NestJS Application                  │
-│                                                      │
+│                  NestJS Application                 │
+│                                                     │
 │  SafeIndexerService   ──▶  Discovers safes from     │
-│  (onModuleInit)             SafeCreated events       │
-│                                                      │
+│  (onModuleInit)             SafeCreated events      │
+│                                                     │
 │  MonitorService        ──▶  Poll loop (every 30s)   │
-│  (@Cron)                    multicall → CashLens     │
-│                                                      │
+│  (@Cron)                    multicall → CashLens    │
+│                                                     │
 │  HealthCalculatorService ▶  Computes HF & risk tier │
-│                                                      │
+│                                                     │
 │  AlertService          ──▶  Slack webhook w/cooldown│
-│                                                      │
+│                                                     │
 │  ApiController         ──▶  REST endpoints          │
-│                                                      │
+│                                                     │
 │  SQLite (TypeORM)      ──▶  Snapshots + registry    │
 └─────────────────────────────────────────────────────┘
          │  eth_call / getLogs
