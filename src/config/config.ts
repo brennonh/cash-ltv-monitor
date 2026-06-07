@@ -1,6 +1,6 @@
 export default () => ({
   rpc: {
-    scrollRpcUrl: process.env.SCROLL_RPC_URL || 'https://rpc.scroll.io',
+    rpcUrl: process.env.RPC_URL || 'https://mainnet.optimism.io',
   },
   contracts: {
     cashLensAddress: process.env.CASH_LENS_ADDRESS as `0x${string}`,

@@ -37,6 +37,7 @@ cp .env.example .env
 All Scroll mainnet contract addresses are pre-filled in `.env.example`. The only value you need to add is optional:
 
 ```bash
+RPC_URL=https://mainnet.optimism.io           # or swap for any supported chain
 SLACK_WEBHOOK_URL=https://hooks.slack.com/... # optional — omit to log alerts to stdout only
 ```
 

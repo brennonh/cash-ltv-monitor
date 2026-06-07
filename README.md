@@ -64,11 +64,11 @@ See `.env.example` for the full list. Key variables:
 
 | Variable | Description |
 |---|---|
-| `SCROLL_RPC_URL` | Scroll mainnet RPC endpoint |
-| `CASH_LENS_ADDRESS` | Deployed `CashLens` contract address |
-| `DEBT_MANAGER_ADDRESS` | Deployed `DebtManager` contract address |
-| `SAFE_FACTORY_ADDRESS` | Factory that emits `BeaconProxyDeployed` events |
-| `INDEX_FROM_BLOCK` | Block to start scanning for safes (set to factory deploy block) |
+| `RPC_URL` | Chain RPC endpoint (Optimism, Scroll, Base, etc.) |
+| `CASH_LENS_ADDRESS` | `CashLens` contract address (same across all chains) |
+| `DEBT_MANAGER_ADDRESS` | `DebtManager` contract address (same across all chains) |
+| `SAFE_FACTORY_ADDRESS` | Factory that emits `BeaconProxyDeployed` events (same across all chains) |
+| `INDEX_FROM_BLOCK` | Block to start scanning for safes (set to factory deploy block on your chain) |
 | `POLL_INTERVAL_MS` | Unused — poll cycle is currently hardcoded to 30s |
 | `HF_WARNING_THRESHOLD` | Health Factor below which WARNING fires (default 1.3) |
 | `SLACK_WEBHOOK_URL` | Slack Incoming Webhook for alerts |

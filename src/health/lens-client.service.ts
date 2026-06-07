@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createPublicClient, http } from 'viem';
-import { scroll } from 'viem/chains';
+import { optimism } from 'viem/chains';
 import { SafeCashData } from './health-calculator.service';
 
 const TOKEN_DATA_COMPONENTS = [
@@ -73,13 +73,13 @@ export class LensClientService {
   private cashLensAddress: `0x${string}`;
 
   constructor(private readonly config: ConfigService) {
-    const rpcUrl = this.config.get<string>('rpc.scrollRpcUrl');
+    const rpcUrl = this.config.get<string>('rpc.rpcUrl');
     this.cashLensAddress = this.config.get<string>(
       'contracts.cashLensAddress',
     ) as `0x${string}`;
 
     this.client = createPublicClient({
-      chain: scroll,
+      chain: optimism,
       transport: http(rpcUrl),
     });
 
