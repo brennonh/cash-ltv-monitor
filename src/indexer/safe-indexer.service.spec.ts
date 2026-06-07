@@ -22,8 +22,14 @@ const buildService = async (factoryAddress: string | undefined = FACTORY_ADDRESS
   };
 
   const mockGetLogs = jest.fn().mockResolvedValue([]);
+  const mockGetBlockNumber = jest.fn().mockResolvedValue(BigInt(100)); // within one chunk
+  const mockMulticall = jest.fn().mockResolvedValue([]);
   const mockLensClient = {
-    getViemClient: jest.fn().mockReturnValue({ getLogs: mockGetLogs }),
+    getViemClient: jest.fn().mockReturnValue({
+      getLogs: mockGetLogs,
+      getBlockNumber: mockGetBlockNumber,
+      multicall: mockMulticall,
+    }),
   };
 
   const mockConfig = {
@@ -47,7 +53,7 @@ const buildService = async (factoryAddress: string | undefined = FACTORY_ADDRESS
 
   const service = module.get<SafeIndexerService>(SafeIndexerService);
 
-  return { service, mockSafeRepo, mockLensClient, mockGetLogs, mockConfig };
+  return { service, mockSafeRepo, mockLensClient, mockGetLogs, mockGetBlockNumber, mockMulticall, mockConfig };
 };
 
 describe('SafeIndexerService', () => {
@@ -77,18 +83,22 @@ describe('SafeIndexerService', () => {
         expect.objectContaining({
           address: FACTORY_ADDRESS,
           fromBlock: BigInt(0),
-          toBlock: 'latest',
         }),
       );
     });
 
     it('persists newly discovered safes from SafeCreated events', async () => {
-      const { service, mockSafeRepo, mockGetLogs } = await buildService(FACTORY_ADDRESS);
+      const { service, mockSafeRepo, mockGetLogs, mockMulticall } = await buildService(FACTORY_ADDRESS);
       mockGetLogs.mockResolvedValue([
-        { args: { safe: SAFE_1, owner: OWNER_1 }, blockNumber: BigInt(500) },
-        { args: { safe: SAFE_2, owner: OWNER_1 }, blockNumber: BigInt(600) },
+        { args: { proxy: SAFE_1 }, blockNumber: BigInt(500) },
+        { args: { proxy: SAFE_2 }, blockNumber: BigInt(600) },
       ]);
-      mockSafeRepo.findOne.mockResolvedValue(null); // both are new
+      // isEtherFiSafe returns true for both
+      mockMulticall.mockResolvedValue([
+        { status: 'success', result: true },
+        { status: 'success', result: true },
+      ]);
+      mockSafeRepo.findOne.mockResolvedValue(null);
 
       await service.indexHistoricalSafes();
 
@@ -96,7 +106,6 @@ describe('SafeIndexerService', () => {
       expect(mockSafeRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
           safeAddress: SAFE_1,
-          ownerAddress: OWNER_1,
           firstSeenBlock: '500',
           active: true,
         }),
@@ -104,11 +113,12 @@ describe('SafeIndexerService', () => {
     });
 
     it('does not re-save a safe that already exists in the registry', async () => {
-      const { service, mockSafeRepo, mockGetLogs } = await buildService(FACTORY_ADDRESS);
+      const { service, mockSafeRepo, mockGetLogs, mockMulticall } = await buildService(FACTORY_ADDRESS);
       mockGetLogs.mockResolvedValue([
-        { args: { safe: SAFE_1, owner: OWNER_1 }, blockNumber: BigInt(500) },
+        { args: { proxy: SAFE_1 }, blockNumber: BigInt(500) },
       ]);
-      mockSafeRepo.findOne.mockResolvedValue({ safeAddress: SAFE_1 }); // already exists
+      mockMulticall.mockResolvedValue([{ status: 'success', result: true }]);
+      mockSafeRepo.findOne.mockResolvedValue({ safeAddress: SAFE_1 });
 
       await service.indexHistoricalSafes();
 
@@ -123,10 +133,11 @@ describe('SafeIndexerService', () => {
     });
 
     it('uses blockNumber "0" when log has no blockNumber', async () => {
-      const { service, mockSafeRepo, mockGetLogs } = await buildService(FACTORY_ADDRESS);
+      const { service, mockSafeRepo, mockGetLogs, mockMulticall } = await buildService(FACTORY_ADDRESS);
       mockGetLogs.mockResolvedValue([
-        { args: { safe: SAFE_1, owner: OWNER_1 }, blockNumber: null },
+        { args: { proxy: SAFE_1 }, blockNumber: null },
       ]);
+      mockMulticall.mockResolvedValue([{ status: 'success', result: true }]);
 
       await service.indexHistoricalSafes();
 

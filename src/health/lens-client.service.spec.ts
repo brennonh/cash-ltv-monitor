@@ -84,7 +84,7 @@ describe('LensClientService', () => {
         expect.objectContaining({
           address: LENS_ADDRESS,
           functionName: 'getSafeCashData',
-          args: [SAFE_A],
+          args: [SAFE_A, []],
         }),
       );
     });
@@ -115,8 +115,8 @@ describe('LensClientService', () => {
         expect.objectContaining({
           allowFailure: true,
           contracts: expect.arrayContaining([
-            expect.objectContaining({ functionName: 'getSafeCashData', args: [SAFE_A] }),
-            expect.objectContaining({ functionName: 'getSafeCashData', args: [SAFE_B] }),
+            expect.objectContaining({ functionName: 'getSafeCashData', args: [SAFE_A, []] }),
+            expect.objectContaining({ functionName: 'getSafeCashData', args: [SAFE_B, []] }),
           ]),
         }),
       );

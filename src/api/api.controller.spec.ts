@@ -122,24 +122,23 @@ describe('ApiController', () => {
   // ── GET /safes/at-risk ───────────────────────────────────────────
   describe('atRiskSafes (GET /safes/at-risk)', () => {
     const mockQb = (snapshots: SafeSnapshot[]) => ({
-      distinctOn: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
       orderBy: jest.fn().mockReturnThis(),
-      addOrderBy: jest.fn().mockReturnThis(),
       getMany: jest.fn().mockResolvedValue(snapshots),
     });
 
     it('returns at-risk safes sorted by healthFactor ascending', async () => {
+      // Pass data pre-sorted ascending (as SQL ORDER BY would return it)
       const snaps = [
-        makeSnapshot({ safeAddress: SAFE_A, healthFactor: 1.25, riskTier: RiskTier.WARNING }),
         makeSnapshot({ safeAddress: SAFE_B, healthFactor: 0.9, riskTier: RiskTier.LIQUIDATABLE }),
+        makeSnapshot({ safeAddress: SAFE_A, healthFactor: 1.25, riskTier: RiskTier.WARNING }),
       ];
       mockSnapshotRepo.createQueryBuilder.mockReturnValue(mockQb(snaps));
 
       const result = await controller.atRiskSafes();
 
       expect(result.count).toBe(2);
-      // sorted ascending by HF: LIQUIDATABLE (0.9) first
       expect(result.safes[0].riskTier).toBe(RiskTier.LIQUIDATABLE);
       expect(result.safes[1].riskTier).toBe(RiskTier.WARNING);
     });
@@ -152,15 +151,16 @@ describe('ApiController', () => {
     });
 
     it('handles null healthFactor gracefully in sort (treats as 99)', async () => {
+      // SQL NULLS LAST: 1.2 comes before null in ascending order
       const snaps = [
-        makeSnapshot({ healthFactor: null, riskTier: RiskTier.LIQUIDATABLE }),
         makeSnapshot({ safeAddress: SAFE_B, healthFactor: 1.2, riskTier: RiskTier.WARNING }),
+        makeSnapshot({ healthFactor: null, riskTier: RiskTier.LIQUIDATABLE }),
       ];
       mockSnapshotRepo.createQueryBuilder.mockReturnValue(mockQb(snaps));
 
       const result = await controller.atRiskSafes();
-      // null HF (→ 99) sorts after 1.2
       expect(result.safes[0].healthFactor).toBe(1.2);
+      expect(result.safes[1].healthFactor).toBeNull();
     });
   });
 
