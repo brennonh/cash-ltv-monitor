@@ -2,12 +2,8 @@
 
 ## Prerequisites
 
-- Node.js 20+ and npm
+- Node.js 20+ and pnpm
 - (Optional) Docker & Docker Compose for containerised deployment
-
----
-
-## Prerequisites
 
 Make sure pnpm is available. The project uses pnpm v9 declared via `packageManager` in `package.json`, so Node 20's built-in corepack can activate it automatically:
 
@@ -38,17 +34,11 @@ pnpm install
 cp .env.example .env
 ```
 
-Open `.env` and fill in at minimum:
+All Scroll mainnet contract addresses are pre-filled in `.env.example`. The only value you need to add is optional:
 
 ```bash
-SCROLL_RPC_URL=https://rpc.scroll.io        # or your own Scroll node
-CASH_LENS_ADDRESS=0x...                      # from cash-v3 deployments/mainnet/534352/deployments.json
-DEBT_MANAGER_ADDRESS=0x...
-SAFE_FACTORY_ADDRESS=0x...
-SLACK_WEBHOOK_URL=https://hooks.slack.com/... # optional — omit to log alerts only
+SLACK_WEBHOOK_URL=https://hooks.slack.com/... # optional — omit to log alerts to stdout only
 ```
-
-Contract addresses can be found in the [cash-v3 repo](https://github.com/etherfi-protocol/cash-v3/tree/master/deployments/mainnet/534352).
 
 ### 3. Start the service
 
@@ -67,12 +57,12 @@ curl http://localhost:3000/health
 
 ### 5. Register a safe manually (for quick testing)
 
-If `SAFE_FACTORY_ADDRESS` is not yet configured, you can add individual safes:
+The indexer discovers safes automatically, but you can add one immediately without waiting:
 
 ```bash
 curl -X POST http://localhost:3000/safes/register \
   -H 'Content-Type: application/json' \
-  -d '{"safeAddress": "0xYourSafeAddressHere"}'
+  -d '{"safeAddress": "0x8227464552bc4b4b9bc8e633d377c0309fe65501"}'
 ```
 
 ### 6. Trigger an immediate poll

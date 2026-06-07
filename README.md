@@ -10,8 +10,8 @@ A NestJS service that monitors the LTV (Loan-to-Value) health of all ether.fi Ca
 ┌─────────────────────────────────────────────────────┐
 │                  NestJS Application                 │
 │                                                     │
-│  SafeIndexerService   ──▶  Discovers safes from     │
-│  (onModuleInit)             SafeCreated events      │
+│  SafeIndexerService   ──▶  Discovers safes from        │
+│  (onModuleInit)             BeaconProxyDeployed events │
 │                                                     │
 │  MonitorService        ──▶  Poll loop (every 30s)   │
 │  (@Cron)                    multicall → CashLens    │
@@ -67,8 +67,9 @@ See `.env.example` for the full list. Key variables:
 | `SCROLL_RPC_URL` | Scroll mainnet RPC endpoint |
 | `CASH_LENS_ADDRESS` | Deployed `CashLens` contract address |
 | `DEBT_MANAGER_ADDRESS` | Deployed `DebtManager` contract address |
-| `SAFE_FACTORY_ADDRESS` | Factory that emits `SafeCreated` events |
-| `POLL_INTERVAL_MS` | How often to poll (default 30000ms) |
+| `SAFE_FACTORY_ADDRESS` | Factory that emits `BeaconProxyDeployed` events |
+| `INDEX_FROM_BLOCK` | Block to start scanning for safes (set to factory deploy block) |
+| `POLL_INTERVAL_MS` | Unused — poll cycle is currently hardcoded to 30s |
 | `HF_WARNING_THRESHOLD` | Health Factor below which WARNING fires (default 1.3) |
 | `SLACK_WEBHOOK_URL` | Slack Incoming Webhook for alerts |
 | `DB_PATH` | SQLite file path (default `./data/ltv_monitor.sqlite`) |
