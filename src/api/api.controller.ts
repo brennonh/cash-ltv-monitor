@@ -109,17 +109,24 @@ export class ApiController {
   async atRiskSafes(): Promise<AtRiskResponseDto> {
     const snapshots = await this.snapshotRepo
       .createQueryBuilder('s')
-      .distinctOn(['s.safeAddress'])
       .where('s.riskTier IN (:...tiers)', {
         tiers: [RiskTier.WARNING, RiskTier.CRITICAL, RiskTier.LIQUIDATABLE],
       })
-      .orderBy('s.safeAddress')
-      .addOrderBy('s.capturedAt', 'DESC')
+      .andWhere((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('MAX(s2.capturedAt)')
+          .from(SafeSnapshot, 's2')
+          .where('s2.safeAddress = s.safeAddress')
+          .getQuery();
+        return `s.capturedAt = ${subQuery}`;
+      })
+      .orderBy('s.healthFactor', 'ASC')
       .getMany();
 
     return {
       count: snapshots.length,
-      safes: snapshots.sort((a, b) => (a.healthFactor ?? 99) - (b.healthFactor ?? 99)) as any,
+      safes: snapshots as any,
     };
   }
 
@@ -184,7 +191,7 @@ export class ApiController {
   @ApiResponse({ status: 201, description: 'Safe registered successfully', type: RegisterSafeResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid or missing safeAddress' })
   async registerSafe(@Body() body: RegisterSafeDto): Promise<RegisterSafeResponseDto> {
-    if (!body.safeAddress || !isAddress(body.safeAddress)) {
+    if (!body.safeAddress || !isAddress(body.safeAddress, { strict: false })) {
       throw new BadRequestException('Invalid safeAddress');
     }
     const safe = await this.indexer.registerSafe(body.safeAddress, body.ownerAddress);

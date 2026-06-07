@@ -6,7 +6,7 @@ import {
 } from './health-calculator.service';
 import { RiskTier } from '../db/safe-snapshot.entity';
 
-const DECIMALS = BigInt(1e18);
+const DECIMALS = BigInt(1e6); // CashLens USD values are 6-decimal fixed point
 
 const mockConfig = {
   get: (key: string) => {
@@ -20,21 +20,22 @@ const mockConfig = {
 };
 
 const makeData = (
-  totalBorrowedUsd: number,
-  maxBorrowCapacityUsd: number,
-  totalCollateralUsd: number,
-  mode = 1,
+  totalBorrow: number,
+  maxBorrow: number,
+  totalCollateral: number,
+  mode = 0,
 ): SafeCashData => ({
   mode,
-  totalCollateralUsd: BigInt(Math.floor(totalCollateralUsd)) * DECIMALS,
-  totalBorrowedUsd: BigInt(Math.floor(totalBorrowedUsd)) * DECIMALS,
-  maxBorrowCapacityUsd: BigInt(Math.floor(maxBorrowCapacityUsd)) * DECIMALS,
-  availableCredit: 0n,
-  maxSpendDebit: 0n,
-  collateralTokens: [],
-  collateralAmounts: [],
-  collateralAmountsUsd: [],
-  collateralLtvs: [],
+  totalCollateral: BigInt(Math.floor(totalCollateral)) * DECIMALS,
+  totalBorrow: BigInt(Math.floor(totalBorrow)) * DECIMALS,
+  maxBorrow: BigInt(Math.floor(maxBorrow)) * DECIMALS,
+  collateralBalances: [],
+  borrows: [],
+  tokenPrices: [],
+  creditMaxSpend: 0n,
+  spendingLimitAllowance: 0n,
+  totalCashbackEarnedInUsd: 0n,
+  incomingModeStartTime: 0n,
 });
 
 describe('HealthCalculatorService', () => {
@@ -92,14 +93,14 @@ describe('HealthCalculatorService', () => {
   });
 
   it('correctly identifies borrow mode from mode field', () => {
-    const credit = service.compute(makeData(0, 0, 0, 1));
+    const credit = service.compute(makeData(0, 0, 0, 0)); // Mode.Credit = 0
     expect(credit.isInBorrowMode).toBe(true);
 
-    const direct = service.compute(makeData(0, 0, 0, 0));
-    expect(direct.isInBorrowMode).toBe(false);
+    const debit = service.compute(makeData(0, 0, 0, 1)); // Mode.Debit = 1
+    expect(debit.isInBorrowMode).toBe(false);
   });
 
-  it('correctly converts 18-decimal USD values', () => {
+  it('correctly converts 6-decimal USD values', () => {
     // 10_000 USD collateral, 5_000 USD borrowed, 8_000 capacity
     const result = service.compute(makeData(5000, 8000, 10000));
     expect(result.totalCollateralUsd).toBeCloseTo(10000);

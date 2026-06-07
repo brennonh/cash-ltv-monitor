@@ -1,11 +1,10 @@
 [
   {
-    "name": "SafeCreated",
+    "name": "BeaconProxyDeployed",
     "type": "event",
     "inputs": [
-      { "name": "safe", "type": "address", "indexed": true },
-      { "name": "owner", "type": "address", "indexed": true },
-      { "name": "cashModule", "type": "address", "indexed": false }
+      { "name": "salt", "type": "bytes32", "indexed": false },
+      { "name": "proxy", "type": "address", "indexed": true }
     ]
   },
   {

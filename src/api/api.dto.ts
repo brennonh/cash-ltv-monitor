@@ -1,19 +1,24 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 import { RiskTier } from '../db/safe-snapshot.entity';
 
 // ── Request DTOs ──────────────────────────────────────────────────
 
 export class RegisterSafeDto {
   @ApiProperty({
-    description: 'EVM checksum address of the EtherFiSafe to register',
+    description: 'EVM address of the EtherFiSafe to register (checksum or lowercase)',
     example: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
   })
+  @IsString()
+  @IsNotEmpty()
   safeAddress: string;
 
   @ApiPropertyOptional({
     description: 'EOA address of the safe owner (informational only)',
     example: '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B',
   })
+  @IsString()
+  @IsOptional()
   ownerAddress?: string;
 }
 

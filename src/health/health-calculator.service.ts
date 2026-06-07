@@ -2,19 +2,28 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RiskTier } from '../db/safe-snapshot.entity';
 
-const DECIMALS = 1e18; // CashLens returns USD values in 18-decimal fixed point
+const DECIMALS = 1e6; // CashLens returns USD values in 6-decimal fixed point (USDC scale)
+
+// Mode enum: Credit = 0 (borrow against collateral), Debit = 1 (spend held tokens)
+const MODE_CREDIT = 0;
+
+export interface TokenData {
+  token: string;
+  amount: bigint;
+}
 
 export interface SafeCashData {
   mode: number;
-  totalCollateralUsd: bigint;
-  totalBorrowedUsd: bigint;
-  maxBorrowCapacityUsd: bigint;
-  availableCredit: bigint;
-  maxSpendDebit: bigint;
-  collateralTokens: string[];
-  collateralAmounts: bigint[];
-  collateralAmountsUsd: bigint[];
-  collateralLtvs: bigint[];
+  collateralBalances: TokenData[];
+  borrows: TokenData[];
+  tokenPrices: TokenData[];
+  totalCollateral: bigint;
+  totalBorrow: bigint;
+  maxBorrow: bigint;
+  creditMaxSpend: bigint;
+  spendingLimitAllowance: bigint;
+  totalCashbackEarnedInUsd: bigint;
+  incomingModeStartTime: bigint;
 }
 
 export interface HealthResult {
@@ -39,11 +48,11 @@ export class HealthCalculatorService {
   }
 
   compute(data: SafeCashData): HealthResult {
-    const totalCollateralUsd = Number(data.totalCollateralUsd) / DECIMALS;
-    const totalBorrowedUsd = Number(data.totalBorrowedUsd) / DECIMALS;
-    const maxBorrowCapacityUsd = Number(data.maxBorrowCapacityUsd) / DECIMALS;
-    // mode 1 = Credit/Borrow mode
-    const isInBorrowMode = data.mode === 1;
+    const totalCollateralUsd = Number(data.totalCollateral) / DECIMALS;
+    const totalBorrowedUsd = Number(data.totalBorrow) / DECIMALS;
+    const maxBorrowCapacityUsd = Number(data.maxBorrow) / DECIMALS;
+    // Mode.Credit = 0 means the safe is in borrow/credit mode
+    const isInBorrowMode = data.mode === MODE_CREDIT;
 
     let healthFactor: number | null = null;
     let riskTier: string = RiskTier.NO_DEBT;
