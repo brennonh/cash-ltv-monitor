@@ -1,6 +1,6 @@
 # cash-ltv-monitor
 
-A NestJS service that monitors the LTV (Loan-to-Value) health of all ether.fi Cash user safes on Scroll mainnet. It polls the `CashLens` contract, stores health snapshots in SQLite, fires Slack alerts when safes approach liquidation, and exposes a REST API for the ops team.
+A NestJS service that monitors the LTV (Loan-to-Value) health of all ether.fi Cash user safes on Optimism mainnet. It polls the `CashLens` contract, stores health snapshots in SQLite, fires Slack alerts when safes approach liquidation, and exposes a REST API for the ops team.
 
 ---
 
@@ -26,7 +26,7 @@ A NestJS service that monitors the LTV (Loan-to-Value) health of all ether.fi Ca
 └─────────────────────────────────────────────────────┘
          │  eth_call / getLogs
          ▼
-   Scroll RPC → CashLens, DebtManager, SafeFactory
+   Optimism RPC → CashLens, DebtManager, SafeFactory
 ```
 
 ## Database Schema

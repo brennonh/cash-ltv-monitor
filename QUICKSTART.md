@@ -34,7 +34,7 @@ pnpm install
 cp .env.example .env
 ```
 
-All Scroll mainnet contract addresses are pre-filled in `.env.example`. The only value you need to add is optional:
+All contract addresses are pre-filled in `.env.example` (they are identical across all supported chains). The only values you may want to change are:
 
 ```bash
 RPC_URL=https://mainnet.optimism.io           # or swap for any supported chain
@@ -63,7 +63,7 @@ The indexer discovers safes automatically, but you can add one immediately witho
 ```bash
 curl -X POST http://localhost:3000/safes/register \
   -H 'Content-Type: application/json' \
-  -d '{"safeAddress": "0x8227464552bc4b4b9bc8e633d377c0309fe65501"}'
+  -d '{"safeAddress": "0xYourSafeAddressHere"}'
 ```
 
 ### 6. Trigger an immediate poll
